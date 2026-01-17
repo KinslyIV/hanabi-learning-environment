@@ -87,6 +87,24 @@ HanabiCard HanabiState::HanabiDeck::DealCard(int color, int rank) {
   return HanabiCard(IndexToColor(index), IndexToRank(index));
 }
 
+void HanabiState::HanabiDeck::AddCard(int color, int rank) {
+  int index = CardToIndex(color, rank);
+  card_count_[index]++;
+  total_count_++;
+}
+
+void HanabiState::HanabiDeck::SetContent(const std::vector<HanabiCard>& cards) {
+  std::fill(card_count_.begin(), card_count_.end(), 0);
+  total_count_ = 0;
+  for (const auto& card : cards) {
+    if (card.IsValid()) {
+      int index = CardToIndex(card.Color(), card.Rank());
+      card_count_[index]++;
+      total_count_++;
+    }
+  }
+}
+
 HanabiState::HanabiState(HanabiGame* parent_game, int start_player)
     : parent_game_(parent_game),
       deck_(*parent_game),
@@ -361,6 +379,71 @@ int HanabiState::Score() const {
     return 0;
   }
   return std::accumulate(fireworks_.begin(), fireworks_.end(), 0);
+}
+
+void HanabiState::SetLifeTokens(int life_tokens) {
+  life_tokens_ = life_tokens;
+}
+
+void HanabiState::SetInformationTokens(int information_tokens) {
+  information_tokens_ = information_tokens;
+}
+
+void HanabiState::SetFireworks(const std::vector<int>& fireworks) {
+  REQUIRE(fireworks.size() == fireworks_.size());
+  fireworks_ = fireworks;
+}
+
+void HanabiState::SetDiscardPile(const std::vector<HanabiCard>& discard_pile) {
+  discard_pile_ = discard_pile;
+}
+
+void HanabiState::SetHand(int player_id, const std::vector<HanabiCard>& cards) {
+  REQUIRE(player_id >= 0 && player_id < hands_.size());
+  hands_[player_id].Clear();
+  // Re-initialize knowledge for new cards
+  HanabiHand::CardKnowledge knowledge(ParentGame()->NumColors(),
+                                      ParentGame()->NumRanks());
+  for (const auto& card : cards) {
+    hands_[player_id].AddCard(card, knowledge);
+  }
+}
+
+void HanabiState::SetDeck(const std::vector<HanabiCard>& cards) {
+  deck_.SetContent(cards);
+}
+
+void HanabiState::SetCurPlayer(int cur_player) {
+  cur_player_ = cur_player;
+}
+
+void HanabiState::SetHandCard(int player, int card_index, HanabiCard card) {
+  REQUIRE(player >= 0 && player < hands_.size());
+  REQUIRE(card_index >= 0 && card_index < hands_[player].Cards().size());
+  REQUIRE(card.IsValid());
+
+  // 1. Return old card to deck
+  HanabiCard old_card = hands_[player].Cards()[card_index];
+  if (old_card.IsValid()) {
+    deck_.AddCard(old_card.Color(), old_card.Rank());
+  }
+
+  // 2. Take new card from deck
+  HanabiCard dealt_card = deck_.DealCard(card.Color(), card.Rank());
+  // If card is not in deck, we assume the user knows what they are doing (e.g. correcting a state where the card was missing)
+  // But strictly speaking, if it's not in deck, we can't "take" it.
+  // However, for determinization, we might want to force it.
+  // If DealCard fails (returns invalid), it means count was 0.
+  // We should probably proceed anyway, but warn? Or just force it?
+  // Since we are manually setting state, we should probably just force it.
+  // But we tried to maintain consistency.
+  // If DealCard failed, it means the deck count is already 0.
+  // We will just use the 'card' passed in.
+
+  // 3. Update hand
+  HanabiHand::CardKnowledge knowledge(ParentGame()->NumColors(),
+                                      ParentGame()->NumRanks());
+  hands_[player].SetCard(card_index, card, knowledge);
 }
 
 HanabiState::EndOfGameType HanabiState::EndOfGameStatus() const {

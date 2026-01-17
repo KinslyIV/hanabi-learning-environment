@@ -42,6 +42,10 @@ class HanabiState {
     int CardCount(int color, int rank) const {
       return card_count_[CardToIndex(color, rank)];
     }
+    // Adds a card back to the deck.
+    void AddCard(int color, int rank);
+    // Replaces the deck content with the given cards.
+    void SetContent(const std::vector<HanabiCard>& cards);
 
    private:
     int CardToIndex(int color, int rank) const {
@@ -98,6 +102,19 @@ class HanabiState {
   int LifeTokens() const { return life_tokens_; }
   int InformationTokens() const { return information_tokens_; }
   const std::vector<HanabiHand>& Hands() const { return hands_; }
+
+  // Manual state setters for determinization
+  void SetLifeTokens(int life_tokens);
+  void SetInformationTokens(int information_tokens);
+  void SetFireworks(const std::vector<int>& fireworks);
+  void SetDiscardPile(const std::vector<HanabiCard>& discard_pile);
+  void SetHand(int player_id, const std::vector<HanabiCard>& cards);
+  void SetDeck(const std::vector<HanabiCard>& cards);
+  void SetCurPlayer(int cur_player);
+  // Replaces a specific card in a player's hand.
+  // Updates deck counts (returns old card to deck, takes new card from deck).
+  void SetHandCard(int player, int card_index, HanabiCard card);
+
   const std::vector<int>& Fireworks() const { return fireworks_; }
   HanabiGame* ParentGame() const { return parent_game_; }
   const HanabiDeck& Deck() const { return deck_; }

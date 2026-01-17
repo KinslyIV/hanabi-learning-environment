@@ -93,6 +93,11 @@ void HanabiHand::RemoveFromHand(int card_index,
   card_knowledge_.erase(card_knowledge_.begin() + card_index);
 }
 
+void HanabiHand::Clear() {
+  cards_.clear();
+  card_knowledge_.clear();
+}
+
 uint8_t HanabiHand::RevealColor(const int color) {
   uint8_t mask = 0;
   assert(cards_.size() <= 8);  // More than 8 cards is currently not supported.
@@ -123,6 +128,13 @@ uint8_t HanabiHand::RevealRank(const int rank) {
     }
   }
   return mask;
+}
+
+void HanabiHand::SetCard(int index, HanabiCard card, const CardKnowledge& initial_knowledge) {
+  REQUIRE(index >= 0 && index < cards_.size());
+  REQUIRE(card.IsValid());
+  cards_[index] = card;
+  card_knowledge_[index] = initial_knowledge;
 }
 
 std::string HanabiHand::ToString() const {

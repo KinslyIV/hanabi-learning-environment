@@ -113,6 +113,10 @@ class HanabiHand {
   // Returns new information bitmask, bit_i set if card_i color was revealed
   // and was previously unknown.
   uint8_t RevealColor(int color);
+  void Clear();
+  // Replaces the card at the given index.
+  // Resets knowledge for that card to initial state (unknown).
+  void SetCard(int index, HanabiCard card, const CardKnowledge& initial_knowledge);
   std::string ToString() const;
 
  private:

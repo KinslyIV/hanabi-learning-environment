@@ -858,4 +858,77 @@ char* EncodeObservation(pyhanabi_observation_encoder_t* encoder,
   return strdup(obs_str.c_str());
 }
 
+/* Manual state setters */
+
+void StateSetLifeTokens(pyhanabi_state_t* state, int tokens) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetLifeTokens(tokens);
+}
+
+void StateSetInformationTokens(pyhanabi_state_t* state, int tokens) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetInformationTokens(tokens);
+}
+
+void StateSetFireworks(pyhanabi_state_t* state, const int* fireworks, int count) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  std::vector<int> fw(fireworks, fireworks + count);
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetFireworks(fw);
+}
+
+void StateSetDiscardPile(pyhanabi_state_t* state, const pyhanabi_card_t* cards, int count) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  std::vector<hanabi_learning_env::HanabiCard> pile;
+  for (int i = 0; i < count; ++i) {
+    pile.emplace_back(cards[i].color, cards[i].rank);
+  }
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetDiscardPile(pile);
+}
+
+void StateSetHand(pyhanabi_state_t* state, int player, const pyhanabi_card_t* cards, int count) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  std::vector<hanabi_learning_env::HanabiCard> hand;
+  for (int i = 0; i < count; ++i) {
+    hand.emplace_back(cards[i].color, cards[i].rank);
+  }
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetHand(player, hand);
+}
+
+void StateSetDeck(pyhanabi_state_t* state, const pyhanabi_card_t* cards, int count) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  std::vector<hanabi_learning_env::HanabiCard> deck;
+  for (int i = 0; i < count; ++i) {
+    deck.emplace_back(cards[i].color, cards[i].rank);
+  }
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetDeck(deck);
+}
+
+void StateSetCurPlayer(pyhanabi_state_t* state, int player) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetCurPlayer(player);
+}
+
+void StateSetHandCard(pyhanabi_state_t* state, int player, int card_index, const pyhanabi_card_t* card) {
+  REQUIRE(state != nullptr);
+  REQUIRE(state->state != nullptr);
+  REQUIRE(card != nullptr);
+  hanabi_learning_env::HanabiCard h_card(card->color, card->rank);
+  reinterpret_cast<hanabi_learning_env::HanabiState*>(state->state)
+      ->SetHandCard(player, card_index, h_card);
+}
+
 } /* extern "C" */
