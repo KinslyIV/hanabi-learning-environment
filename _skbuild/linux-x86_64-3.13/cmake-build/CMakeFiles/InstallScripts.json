@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/immata/Documents/Reinforcement Learning/hanabi/hanabi-learning-environment/_skbuild/linux-x86_64-3.13/cmake-build/cmake_install.cmake",
-		"/home/immata/Documents/Reinforcement Learning/hanabi/hanabi-learning-environment/_skbuild/linux-x86_64-3.13/cmake-build/hanabi_learning_environment/hanabi_lib/cmake_install.cmake",
-		"/home/immata/Documents/Reinforcement Learning/hanabi/hanabi-learning-environment/_skbuild/linux-x86_64-3.13/cmake-build/hanabi_learning_environment/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
